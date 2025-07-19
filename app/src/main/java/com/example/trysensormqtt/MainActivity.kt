@@ -10,10 +10,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.trysensormqtt.ui.dialogs.AppInfoDialog
 import com.example.trysensormqtt.ui.helpers.BottomNavItem
 import com.example.trysensormqtt.ui.menu.TopBar
 import com.example.trysensormqtt.ui.menu.navigation.AppNavHostApp
@@ -43,12 +48,16 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp() {
     val navController = rememberNavController()
+    var showInfoDialog by remember { mutableStateOf(false) }
 
+    if (showInfoDialog) {
+        AppInfoDialog(onDismiss = { showInfoDialog = false })
+    }
     Scaffold(
         topBar = {
             TopBar(
                 title = "TrySensorMqtt",
-                onMenuClick = { /* Acciones del menú */ }
+                onMenuClick = { showInfoDialog = true }
             )
         },
         bottomBar = {
