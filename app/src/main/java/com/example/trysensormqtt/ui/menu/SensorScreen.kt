@@ -24,18 +24,58 @@ import com.example.trysensormqtt.domain.result.SensorUIState
 import com.example.trysensormqtt.ui.dialogs.AddSensorDialog
 import com.example.trysensormqtt.ui.viewmodel.SensorViewModel
 import com.example.trysensormqtt.R
+import com.example.trysensormqtt.domain.repository.MqttState
+import com.example.trysensormqtt.ui.viewmodel.MqttViewModel
 import com.example.trysensormqtt.ui.viewmodel.SensorTypeViewModel
 
 @Composable
 fun SensorScreen(
     viewModel: SensorViewModel = hiltViewModel(),
-    sensorTypeViewModel: SensorTypeViewModel = hiltViewModel()
-) {
+    sensorTypeViewModel: SensorTypeViewModel = hiltViewModel(),
+    mqttViewModel:  MqttViewModel   = hiltViewModel()
+    ) {
     val sensorsResult by viewModel.sensors.observeAsState(SensorResult.Success(emptyList()))
     val sensorTypesResult by sensorTypeViewModel.types.observeAsState(SensorResult.Success(emptyList()))
     var showAddSensorDialog by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
     val uiEvent = viewModel.uiEvent.collectAsState(initial = SensorUIState.Idle)
+
+    val sensorData = remember { mutableStateMapOf<Long, String>() }
+
+    val incoming by mqttViewModel.messages.collectAsState()
+    val incomingState by mqttViewModel.states.collectAsState()
+    val sensorStates = remember { mutableStateMapOf<Long, MqttState>() }
+
+
+    LaunchedEffect(incomingState) {
+        incomingState?.let { (id, st) -> sensorStates[id] = st }
+    }
+
+    LaunchedEffect(incoming) {
+        incoming?.let { (id, payload) ->
+            sensorData[id] = payload
+        }
+    }
+
+    LaunchedEffect(sensorsResult) {
+        if (sensorsResult is SensorResult.Success) {
+            val sensors = (sensorsResult as SensorResult.Success).data
+            sensors.forEach { mqttViewModel.startSensor(it) }
+
+            val liveIds = sensors.map { it.id }.toSet()
+
+            (sensorData.keys + sensorStates.keys)
+                .filter { it !in liveIds }
+                .forEach { id ->
+                    mqttViewModel.stopSensor(id)
+                    sensorData.remove(id)
+                    sensorStates.remove(id)
+                }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { mqttViewModel.stopAll() }
+    }
 
     LaunchedEffect(uiEvent.value) {
         when (uiEvent.value) {
@@ -65,7 +105,11 @@ fun SensorScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(sensors.size) { index ->
-                        SensorCard(sensor = sensors[index])
+                        val sensor = sensors[index]
+                        val value  = sensorData[sensor.id]
+                        val state  = sensorStates[sensor.id]
+
+                        SensorCard(sensor = sensor, value = value, state = state)
                     }
                     item {
                         DefaultAddSensorCard(onAddClick = { showAddSensorDialog = true })
@@ -189,12 +233,11 @@ fun GaugeIndicator(value: Int) {
 @Composable
 fun SensorCard(
     sensor: SensorEntity,
-    value: String? = null
+    value: String? = null,
+    state: MqttState? = null
 ) {
-    val displayValue = value ?: "50"
+    val displayValue = value ?: "--"
 
-
-    // Determinar imagen y nombre según el tipo de sensor
     val (title, imageRes) = when (sensor.sensorTypeId.toInt()) {
         1 -> sensor.name to R.drawable.temperature_icon
         2 -> sensor.name to R.drawable.humidity_icon
@@ -202,6 +245,16 @@ fun SensorCard(
         4 -> sensor.name to R.drawable.pressure_icon
         else -> sensor.name to R.drawable.data_icon
     }
+
+    val iconRes = when (state) {
+        MqttState.Connected      -> R.drawable.connected_icon
+        MqttState.Connecting     -> R.drawable.connecting_icon
+        MqttState.ConnectionLost     -> R.drawable.lost_connection_icon
+        else                     -> R.drawable.error_icon
+    }
+
+
+
 
     Card(
         modifier = Modifier
@@ -217,18 +270,31 @@ fun SensorCard(
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Nombre del sensor
-            Text(
-                text = sensor.name.ifEmpty { title },
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Gray
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = sensor.name.ifEmpty { title },
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        color       = Color.Gray
+                    ),
+                    modifier = Modifier.weight(1f),
+                    maxLines = 2
                 )
-            )
+
+                Icon(
+                    painter = painterResource(iconRes),
+                    contentDescription = state?.name ?: "unknown",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Imagen y valor
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -247,7 +313,8 @@ fun SensorCard(
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
-                    )
+                    ),
+                    maxLines = 2
                 )
             }
 
@@ -255,3 +322,4 @@ fun SensorCard(
         }
     }
 }
+

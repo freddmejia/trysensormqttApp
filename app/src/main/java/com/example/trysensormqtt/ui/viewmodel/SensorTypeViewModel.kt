@@ -20,46 +20,12 @@ class SensorTypeViewModel @Inject constructor(
     private val useCases: SensorTypeUseCases
 ) : ViewModel() {
 
-    private val _loading = MutableLiveData(false)
-    val loading: LiveData<Boolean> = _loading
-
-    private val _uiEvent = MutableSharedFlow<SensorUIState>()
-    val uiEvent = _uiEvent.asSharedFlow()
-
     private val _types = MutableLiveData<SensorResult<List<SensorTypeEntity>>>()
     val types: LiveData<SensorResult<List<SensorTypeEntity>>> = _types
-
-    fun createType(type: SensorTypeEntity) = viewModelScope.launch {
-        /*_loading.value = true
-        val result = useCases.createType.execute(type)
-        val event = when (result) {
-            is SensorResult.Success -> SensorUIState.Success
-            is SensorResult.Error -> SensorUIState.Error
-            SensorResult.ErrorEmpty -> SensorUIState.Error
-        }
-        _uiEvent.emit(event)
-        delay(300)
-        _loading.value = false
-        fetchAllTypes()*/
-    }
 
     fun fetchAllTypes() = viewModelScope.launch {
         val result = useCases.getAllTypes.execute()
         _types.value = result
     }
 
-    fun deleteType(type: SensorTypeEntity) = viewModelScope.launch {
-        /*val result = useCases.deleteType.execute(type)
-        val event = when (result) {
-            is SensorResult.Success -> SensorUIState.Success
-            is SensorResult.Error -> SensorUIState.Error
-            SensorResult.ErrorEmpty -> SensorUIState.Error
-        }
-        _uiEvent.emit(event)
-        fetchAllTypes()*/
-    }
-
-    fun resetTypes() {
-        _types.value = SensorResult.Success(emptyList())
-    }
 }

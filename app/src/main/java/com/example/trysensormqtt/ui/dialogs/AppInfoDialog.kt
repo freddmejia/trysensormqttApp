@@ -64,15 +64,20 @@ fun AppInfoDialog(
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
-
+                //                        • All sensor data is stored locally on your device.
                 Text(
                     text = """
-                        - You can **create**, **edit**, and **delete sensors** from the configuration screen.
-                        - All sensor data is stored **locally** on your device.
-                        - On the main **Sensor screen**, the app runs an MQTT listener in the background,
-                          subscribing to the configured topics to receive live data.
+                       • From Configuration you can *create*, *edit* or *delete* sensors.  
+                        • On the Sensor screen the app starts an MQTT listener in the background  
+                          and subscribes to every configured topic to receive live values.  
                         
-                        The expected JSON format from the MQTT messages is:
+                        🔹 How to fill in Host / IP  
+                            – Enter only the domain or IP (e.g. `broker.hivemq.com` or `11.111.11.11`).  
+                            – Do not prepend `tcp://`, `ssl://`, `ws://`, … — the app adds the
+                              proper prefix automatically when building the broker URI (`tcp://<host>:<port>`).  
+                            – If the port is left blank, 1883 (plain MQTT) is used by default.
+                        
+                        🔹 Expected JSON payload for each MQTT message
                     """.trimIndent(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.DarkGray

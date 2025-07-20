@@ -33,20 +33,6 @@ class SensorViewModel @Inject constructor(
     private val limitPerPage = 5
     private val maxStored = 50
 
-    /*fun createSensor(sensor: SensorEntity) = viewModelScope.launch {
-        _loading.value = true
-        val result = useCases.createSensorUseCase.execute(sensor)
-        val event = when (result) {
-            is SensorResult.Success -> SensorUIState.Success
-            is SensorResult.Error -> SensorUIState.Error
-            SensorResult.ErrorEmpty -> SensorUIState.Error
-        }
-        _uiEvent.emit(event)
-        delay(500)
-        _loading.value = false
-        fetchAllSensors()
-    }*/
-
     fun fetchAllSensors() = viewModelScope.launch {
         _loading.value = true
         try {
@@ -63,27 +49,6 @@ class SensorViewModel @Inject constructor(
             _loading.value = false
         }
     }
-
-
-    /*fun fetchAllSensors() = viewModelScope.launch {
-        val previousList = (_sensors.value as? SensorResult.Success)?.data ?: emptyList()
-        val result = useCases.getAllSensorsUseCase.execute(
-            limit = limitPerPage,
-            offset = currentOffset
-        )
-
-        if (result is SensorResult.Success) {
-            val combined = (previousList + result.data)
-                .distinctBy { it.id }
-                .takeLast(maxStored)
-            _sensors.value = SensorResult.Success(combined)
-            currentOffset += limitPerPage
-        } else if (previousList.isNotEmpty()) {
-            _sensors.value = SensorResult.Success(previousList)
-        } else {
-            _sensors.value = SensorResult.ErrorEmpty
-        }
-    }*/
 
     fun updateSensor(sensor: SensorEntity) = viewModelScope.launch {
         val updateResult = useCases.updateSensorUseCase.execute(sensor)
@@ -115,36 +80,6 @@ class SensorViewModel @Inject constructor(
     }
 
 
-
-    /*fun deleteSensor(sensorId: Long) = viewModelScope.launch {
-        try {
-            _loading.value = true
-            val deletedResult = useCases.deleteSensorUseCase.execute(sensorId)
-            when (deletedResult) {
-                is SensorResult.Success -> {
-                    _uiEvent.emit(SensorUIState.Success("Sensor deleted successfully"))
-
-                    //val currentList = (_sensors.value as? SensorResult.Success)?.data ?: emptyList()
-                    //val updatedList = currentList.filter { it.id != sensorId }
-                    //_sensors.value = SensorResult.Success(updatedList)
-                    fetchAllSensors()
-                }
-                is SensorResult.Error, SensorResult.ErrorEmpty -> {
-                    _uiEvent.emit(SensorUIState.Error("Failed to delete sensor"))
-                }
-            }
-        } catch (e: Exception) {
-            _uiEvent.emit(SensorUIState.Error("Exception: ${e.message}"))
-        } finally {
-            _loading.value = false
-        }
-    }*/
-
-
-    fun resetSensors() {
-        _sensors.value = SensorResult.Success(emptyList())
-        currentOffset = 0
-    }
 
     fun createSensor(
         name: String,

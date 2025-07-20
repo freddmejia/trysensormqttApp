@@ -81,6 +81,14 @@ dependencies {
 
     //charts
     implementation(libs.charts.compose)
+
+    //mqtt
+    implementation(libs.paho.client)
+    implementation(libs.paho.android)
+
+    //gson
+    implementation(libs.gson)
+
 }
 kapt {
     correctErrorTypes = true

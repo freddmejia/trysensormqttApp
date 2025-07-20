@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -83,6 +84,9 @@ fun AddSensorDialog(
                         )
                     }
                 }
+
+
+
 
                 Row(
                     modifier = Modifier
@@ -212,37 +216,6 @@ fun TabButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
     }
 }
 
-
-@Composable
-fun ChartPreview() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(120.dp)
-            .padding(8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Chart Preview")
-    }
-}
-
-@Composable
-fun ToggleButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) Color(0xFF4CAF50) else Color.LightGray,
-            contentColor = if (isSelected) Color.White else Color.Black
-        ),
-        shape = RoundedCornerShape(8.dp),
-        modifier = Modifier
-            .height(36.dp)
-            .padding(horizontal = 4.dp)
-    ) {
-        Text(text)
-    }
-}
-
 @Composable
 fun HostIpSelector(
     isHostSelected: Boolean,
@@ -320,73 +293,6 @@ fun HostIpInputSection(
     }
 }
 
-
-/*
-@Composable
-fun HostIpSelector(
-    isHostSelected: Boolean,
-    onHostSelected: () -> Unit,
-    onIpSelected: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        HostIpButton(
-            text = "Host",
-            isSelected = isHostSelected,
-            onClick = onHostSelected
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        HostIpButton(
-            text = "IP",
-            isSelected = !isHostSelected,
-            onClick = onIpSelected
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Icon(
-            painter = painterResource(R.drawable.check_icon),
-            contentDescription = "Valid",
-            tint = Color.Green
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        Icon(
-            painter = painterResource(R.drawable.error_icon),
-            contentDescription = "Error",
-            tint = Color.Red
-        )
-    }
-}
-@Composable
-fun HostIpInputSection(isHostSelected: Boolean) {
-    Spacer(modifier = Modifier.height(16.dp))
-    if (isHostSelected) {
-        OutlinedTextField(
-            value = "",
-            onValueChange = { },
-            placeholder = { Text("mqtt.myserver") },
-            modifier = Modifier.fillMaxWidth()
-        )
-    } else {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            repeat(4) {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = { },
-                    placeholder = { Text(".") },
-                    modifier = Modifier.width(60.dp)
-                )
-            }
-        }
-    }
-}
-*/
 @Composable
 fun HostIpButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
     val backgroundColor = if (isSelected) Color(0xFF7B7B3F) else Color.White

@@ -8,7 +8,9 @@ import com.example.trysensormqtt.data.local.db.DataModelDatabase
 import com.example.trysensormqtt.data.local.implementation.SensorDataRepositoryImplementation
 import com.example.trysensormqtt.data.local.implementation.SensorRepositoryImplementation
 import com.example.trysensormqtt.data.local.implementation.SensorTypeRepositoryImplementation
+import com.example.trysensormqtt.data.remote.implementation.MqttRepositoryImpl
 import com.example.trysensormqtt.domain.repository.SensorDataRepository
+import com.example.trysensormqtt.domain.repository.SensorMqttRepository
 import com.example.trysensormqtt.domain.repository.SensorRepository
 import com.example.trysensormqtt.domain.repository.SensorTypeRepository
 import com.example.trysensormqtt.domain.use_case.CreateSensorTypeUseCase
@@ -103,5 +105,10 @@ class AppModule {
             getAllSensorsUseCase = GetAllSensorsUseCase(repository)
         )
     }
+
+    @Singleton
+    @Provides
+    fun provideMqttRepository(@ApplicationContext ctx: Context): SensorMqttRepository =
+        MqttRepositoryImpl(ctx)
 
 }
