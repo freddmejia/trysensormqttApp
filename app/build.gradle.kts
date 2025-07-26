@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.trysensormqtt"
+    namespace = "fredd.dev.trysensormqtt"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.trysensormqtt"
+        applicationId = "fredd.dev.trysensormqtt"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
