@@ -59,7 +59,10 @@ class MqttRepositoryImpl @Inject constructor(
 
     override fun stopAll() {
         scope.launch {
-            managers.values.forEach { it.stop() }
+            val snapshot = managers.values.toList()
+            for (mgr in snapshot) {
+                mgr.stop()
+            }
             managers.clear()
         }
     }
